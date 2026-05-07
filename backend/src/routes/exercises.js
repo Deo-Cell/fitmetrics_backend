@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
       category,
     });
     res.json(exercises);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -26,7 +26,7 @@ router.get('/:id', async (req, res) => {
     const exercise = await exerciseRepo.findById(req.params.id);
     if (!exercise) return res.status(404).json({ error: 'Exercise not found' });
     res.json(exercise);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });

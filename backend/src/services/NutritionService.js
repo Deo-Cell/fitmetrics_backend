@@ -3,7 +3,7 @@ const {
   NutritionCalculator,
   MifflinBMRStrategy,
 } = require('../strategies/calculator/Calculators');
-const logger = require('../config/logger');
+
 
 // Valeurs MET (Metabolic Equivalent of Task) pour estimer les calories brûlées
 const MET_VALUES = {

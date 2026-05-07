@@ -24,7 +24,7 @@ router.get('/', authMiddleware, async (req, res) => {
     const { type, from, to } = req.query;
     const workouts = await workoutService.findByUser(req.user.id, { type, from, to });
     res.json(workouts);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -18,7 +18,7 @@ router.get('/bmi', authMiddleware, async (req, res) => {
 
     const result = nutritionService.calculateBMI(user.weight, user.heightCm);
     res.json(result);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -59,7 +59,7 @@ router.get('/calories-burned', authMiddleware, async (req, res) => {
       type || 'mixed'
     );
     res.json(result);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });

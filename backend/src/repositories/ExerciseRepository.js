@@ -1,6 +1,6 @@
 const BaseRepository = require('./BaseRepository');
 const { Exercise } = require('../models');
-const { Op } = require('sequelize');
+
 
 class ExerciseRepository extends BaseRepository {
   constructor() {

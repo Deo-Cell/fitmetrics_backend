@@ -1,7 +1,7 @@
 const WorkoutRepository = require('../repositories/WorkoutRepository');
 const WorkoutExerciseRepository = require('../repositories/WorkoutExerciseRepository');
 const { RMCalculator, Epley1RMStrategy } = require('../strategies/calculator/Calculators');
-const logger = require('../config/logger');
+
 
 class StatsService {
   constructor(workoutRepo, workoutExerciseRepo, rmCalculator) {

@@ -22,7 +22,7 @@ router.get('/', authMiddleware, async (req, res) => {
       goal: user.goal,
       activityLevel: user.activityLevel,
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -53,7 +53,7 @@ router.put('/', authMiddleware, async (req, res) => {
       goal: user.goal,
       activityLevel: user.activityLevel,
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
