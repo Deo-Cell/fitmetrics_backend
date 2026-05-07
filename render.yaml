@@ -1,0 +1,31 @@
+databases:
+  - name: fitmetrics-db
+    databaseName: fitmetrics
+    user: fitmetrics
+    region: frankfurt
+    plan: free
+
+services:
+  - type: web
+    name: fitmetrics-api
+    runtime: docker
+    region: frankfurt
+    plan: free
+    repo: https://github.com/Deo-Cell/Final_Project
+    branch: main
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fitmetrics-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false # À remplir manuellement sur Render
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000

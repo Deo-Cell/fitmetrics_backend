@@ -77,3 +77,11 @@ jobs:
           tags: |
             ghcr.io/deo-cell/final_project:latest
             ghcr.io/deo-cell/final_project:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Trigger Render Deploy
+        run: curl -s "${{ secrets.RENDER_DEPLOY_HOOK }}"
