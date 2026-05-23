@@ -1,101 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/auth');
-const WorkoutService = require('../services/WorkoutService');
-const StatsService = require('../services/StatsService');
-const logger = require('../config/logger');
-
-const workoutService = new WorkoutService();
-
-// Observer Pattern — recalcul asynchrone des stats après complétion d'une séance
-workoutService.on('workout:completed', async ({ workout, userId }) => {
-  try {
-    const statsService = new StatsService();
-    await statsService.getDashboard(userId);
-    logger.info('Stats recalculated after workout completion', { workoutId: workout.id, userId });
-  } catch (error) {
-    logger.error('Failed to recalculate stats after workout completion', error);
-  }
-});
+const workoutController = require('../controllers/WorkoutController');
 
 // POST /api/workouts
-router.post('/', authMiddleware, async (req, res) => {
-  try {
-    if (!req.body.name) {
-      return res.status(400).json({ error: 'Workout name is required' });
-    }
-    const workout = await workoutService.create(req.user.id, req.body);
-    res.status(201).json(workout);
-  } catch (error) {
-    if (error.message.includes('requires')) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.post('/', authMiddleware, workoutController.create);
 
 // GET /api/workouts
-router.get('/', authMiddleware, async (req, res) => {
-  try {
-    const { type, from, to } = req.query;
-    const workouts = await workoutService.findByUser(req.user.id, { type, from, to });
-    res.json(workouts);
-  } catch (_error) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.get('/', authMiddleware, workoutController.getAll);
 
 // GET /api/workouts/:id
-router.get('/:id', authMiddleware, async (req, res) => {
-  try {
-    const workout = await workoutService.findById(req.params.id);
-    if (workout.userId !== req.user.id) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
-    res.json(workout);
-  } catch (error) {
-    if (error.message === 'Workout not found') {
-      return res.status(404).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.get('/:id', authMiddleware, workoutController.getById);
 
 // PUT /api/workouts/:id
-router.put('/:id', authMiddleware, async (req, res) => {
-  try {
-    const workout = await workoutService.update(req.params.id, req.user.id, req.body);
-    res.json(workout);
-  } catch (error) {
-    if (error.message === 'Workout not found') return res.status(404).json({ error: error.message });
-    if (error.message === 'Unauthorized') return res.status(403).json({ error: error.message });
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.put('/:id', authMiddleware, workoutController.update);
 
 // DELETE /api/workouts/:id
-router.delete('/:id', authMiddleware, async (req, res) => {
-  try {
-    await workoutService.delete(req.params.id, req.user.id);
-    res.status(204).send();
-  } catch (error) {
-    if (error.message === 'Workout not found') return res.status(404).json({ error: error.message });
-    if (error.message === 'Unauthorized') return res.status(403).json({ error: error.message });
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.delete('/:id', authMiddleware, workoutController.delete);
 
 // POST /api/workouts/:id/complete
-router.post('/:id/complete', authMiddleware, async (req, res) => {
-  try {
-    const workout = await workoutService.complete(req.params.id, req.user.id);
-    res.json(workout);
-  } catch (error) {
-    if (error.message === 'Workout not found') return res.status(404).json({ error: error.message });
-    if (error.message === 'Unauthorized') return res.status(403).json({ error: error.message });
-    if (error.message === 'Workout already completed') return res.status(400).json({ error: error.message });
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.post('/:id/complete', authMiddleware, workoutController.complete);
 
 module.exports = router;
