@@ -40,6 +40,26 @@ describe('StatsService Unit Tests', () => {
       const workouts = [{ completedAt: threeDaysAgo }];
       expect(statsService.calculateStreak(workouts)).toBe(0);
     });
+
+    test('should return 0 for empty array', () => {
+      expect(statsService.calculateStreak([])).toBe(0);
+    });
+
+    test('should handle missing completedAt', () => {
+      expect(statsService.calculateStreak([{ id: 1 }])).toBe(0);
+    });
+
+    test('should stop counting streak if day is missed', () => {
+      const today = new Date().toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const threeDaysAgo = new Date(Date.now() - 259200000).toISOString().split('T')[0];
+      const workouts = [
+        { completedAt: today },
+        { completedAt: yesterday },
+        { completedAt: threeDaysAgo }
+      ];
+      expect(statsService.calculateStreak(workouts)).toBe(2);
+    });
   });
 
   describe('getVolume', () => {
@@ -63,6 +83,49 @@ describe('StatsService Unit Tests', () => {
       expect(result.totalVolume).toBe(3000);
       expect(result.totalVolumeKg).toBe('3.0T');
       expect(result.workoutCount).toBe(2);
+    });
+
+    test('should handle empty exercises safely', async () => {
+      mockWorkoutRepo.findCompletedByUser.mockResolvedValue([{ exercises: [{}] }]);
+      const result = await statsService.getVolume(1, { from: '2026-01-01', to: '2026-01-31' });
+      expect(result.totalVolume).toBe(0);
+    });
+  });
+
+  describe('getVolumeDaily', () => {
+    test('should calculate daily volume correctly', async () => {
+      const workouts = [{
+        completedAt: new Date().toISOString(),
+        type: 'strength',
+        exercises: [{ weight: 100, reps: 10 }]
+      }];
+      mockWorkoutRepo.findCompletedByUser.mockResolvedValue(workouts);
+      const result = await statsService.getVolumeDaily(1, { period: 'week' });
+      expect(result.totalVolume).toBe(1000);
+    });
+
+    test('should handle cardio daily volume correctly', async () => {
+      const workouts = [{
+        completedAt: new Date().toISOString(),
+        type: 'cardio',
+        exercises: [{ weight: 100, reps: 10 }]
+      }];
+      mockWorkoutRepo.findCompletedByUser.mockResolvedValue(workouts);
+      const result = await statsService.getVolumeDaily(1, { period: 'week' });
+      expect(result.totalVolume).toBe(1000);
+    });
+  });
+
+  describe('getVolumeHistory', () => {
+    test('should calculate weekly volume points', async () => {
+      const workouts = [{
+        completedAt: new Date().toISOString(),
+        exercises: [{ weight: 100, reps: 10 }]
+      }];
+      mockWorkoutRepo.findCompletedByUser.mockResolvedValue(workouts);
+      const result = await statsService.getVolumeHistory(1);
+      expect(result.points.length).toBeGreaterThan(0);
+      expect(result.points[0].volume).toBe(1000);
     });
   });
 });
