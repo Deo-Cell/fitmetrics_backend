@@ -54,7 +54,9 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
-      - run: npm test
+      - name: Security audit
+        run: npm audit --audit-level=critical || true
+      - run: npm run test:coverage
 
   build-and-push:
     runs-on: ubuntu-latest

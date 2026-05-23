@@ -2,12 +2,28 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/auth');
 const WorkoutService = require('../services/WorkoutService');
+const StatsService = require('../services/StatsService');
+const logger = require('../config/logger');
 
 const workoutService = new WorkoutService();
+
+// Observer Pattern — recalcul asynchrone des stats après complétion d'une séance
+workoutService.on('workout:completed', async ({ workout, userId }) => {
+  try {
+    const statsService = new StatsService();
+    await statsService.getDashboard(userId);
+    logger.info('Stats recalculated after workout completion', { workoutId: workout.id, userId });
+  } catch (error) {
+    logger.error('Failed to recalculate stats after workout completion', error);
+  }
+});
 
 // POST /api/workouts
 router.post('/', authMiddleware, async (req, res) => {
   try {
+    if (!req.body.name) {
+      return res.status(400).json({ error: 'Workout name is required' });
+    }
     const workout = await workoutService.create(req.user.id, req.body);
     res.status(201).json(workout);
   } catch (error) {

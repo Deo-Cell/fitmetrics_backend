@@ -7,18 +7,18 @@ describe('NutritionService Unit Tests', () => {
     nutritionService = new NutritionService();
   });
 
-  test('calculateBMI should return correct value and category', () => {
+  test('should return correct BMI value and category when given valid inputs', () => {
     const result = nutritionService.calculateBMI(80, 180);
     expect(result.bmi).toBe(24.7);
     expect(result.category).toBe('normal');
   });
 
-  test('calculateBMI should throw error for invalid inputs', () => {
+  test('should throw error when given invalid BMI inputs', () => {
     expect(() => nutritionService.calculateBMI(-80, 180)).toThrow();
     expect(() => nutritionService.calculateBMI(80, 0)).toThrow();
   });
 
-  test('calculateCaloriesBurned should return correct estimation', () => {
+  test('should return correct calorie estimation when given valid MET data', () => {
     // MET for strength is 6.0
     // calories = 6.0 * 80kg * (60min / 60) = 480
     const result = nutritionService.calculateCaloriesBurned(80, 60, 'strength');

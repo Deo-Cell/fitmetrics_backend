@@ -52,5 +52,5 @@ class Logger {
   }
 }
 
-const loggerIntance = new Logger();
-module.exports = loggerIntance;
+const loggerInstance = new Logger();
+module.exports = loggerInstance;

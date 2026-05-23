@@ -26,6 +26,28 @@ router.get('/volume', authMiddleware, async (req, res) => {
   }
 });
 
+// GET /api/stats/volume-history
+router.get('/volume-history', authMiddleware, async (req, res) => {
+  try {
+    const { months } = req.query;
+    const data = await statsService.getVolumeHistory(req.user.id, { months: months ? parseInt(months) : 3 });
+    res.json(data);
+  } catch (_error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/stats/volume-daily
+router.get('/volume-daily', authMiddleware, async (req, res) => {
+  try {
+    const { from, to, period } = req.query;
+    const data = await statsService.getVolumeDaily(req.user.id, { from, to, period });
+    res.json(data);
+  } catch (_error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/stats/dashboard
 router.get('/dashboard', authMiddleware, async (req, res) => {
   try {
