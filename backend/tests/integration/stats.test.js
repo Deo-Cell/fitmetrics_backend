@@ -19,14 +19,14 @@ describe('Stats & Exercises Integration Tests', () => {
   });
 
   describe('Exercises', () => {
-    test('GET /api/exercises should return full list', async () => {
+    test('should return full exercise list when calling GET /api/exercises', async () => {
       const res = await request(app).get('/api/exercises');
       expect(res.statusCode).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBeGreaterThan(0);
     });
 
-    test('GET /api/exercises?muscle=chest should filter results', async () => {
+    test('should filter results by muscle group when calling GET /api/exercises?muscle=chest', async () => {
       const res = await request(app).get('/api/exercises?muscle=chest');
       expect(res.statusCode).toBe(200);
       res.body.forEach(ex => expect(ex.muscleGroup).toBe('chest'));
@@ -34,7 +34,7 @@ describe('Stats & Exercises Integration Tests', () => {
   });
 
   describe('Stats', () => {
-    test('GET /api/stats/dashboard should return summary', async () => {
+    test('should return dashboard summary when calling GET /api/stats/dashboard', async () => {
       const res = await request(app)
         .get('/api/stats/dashboard')
         .set('Authorization', `Bearer ${token}`);
@@ -44,7 +44,7 @@ describe('Stats & Exercises Integration Tests', () => {
       expect(res.body).toHaveProperty('currentStreak');
     });
 
-    test('GET /api/stats/volume should return volume data', async () => {
+    test('should return volume data when calling GET /api/stats/volume', async () => {
       const res = await request(app)
         .get('/api/stats/volume')
         .set('Authorization', `Bearer ${token}`);

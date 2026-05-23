@@ -12,21 +12,21 @@ describe('Calculators Unit Tests', () => {
   describe('One Rep Max (1RM) Strategies', () => {
     const data = { weight: 100, reps: 10 };
 
-    test('Epley formula should calculate correctly', () => {
+    test('should calculate 1RM correctly when using Epley formula', () => {
       const strategy = new Epley1RMStrategy();
       const result = strategy.calculate(data);
       // 100 * (1 + 10/30) = 133.333...
       expect(result).toBeCloseTo(133.33, 1);
     });
 
-    test('Brzycki formula should calculate correctly', () => {
+    test('should calculate 1RM correctly when using Brzycki formula', () => {
       const strategy = new Brzycki1RMStrategy();
       const result = strategy.calculate(data);
       // 100 * (36 / (37 - 10)) = 100 * (36 / 27) = 133.333...
       expect(result).toBeCloseTo(133.33, 1);
     });
 
-    test('RMCalculator should use provided strategy', () => {
+    test('should use the provided strategy when setStrategy is called', () => {
       const calculator = new RMCalculator(new Epley1RMStrategy());
       expect(calculator.calculate1RM(100, 10)).toBe(133.3);
       
@@ -38,21 +38,21 @@ describe('Calculators Unit Tests', () => {
   describe('Basal Metabolic Rate (BMR) Strategies', () => {
     const profile = { weight: 80, heightCm: 180, age: 30, gender: 'male' };
 
-    test('Mifflin-St Jeor formula should calculate correctly for male', () => {
+    test('should calculate BMR correctly when using Mifflin formula for male', () => {
       const strategy = new MifflinBMRStrategy();
       const result = strategy.calculate(profile);
       // (10 * 80) + (6.25 * 180) - (5 * 30) + 5 = 800 + 1125 - 150 + 5 = 1780
       expect(result).toBe(1780);
     });
 
-    test('Mifflin-St Jeor formula should calculate correctly for female', () => {
+    test('should calculate BMR correctly when using Mifflin formula for female', () => {
       const strategy = new MifflinBMRStrategy();
       const result = strategy.calculate({ ...profile, gender: 'female' });
       // (10 * 80) + (6.25 * 180) - (5 * 30) - 161 = 800 + 1125 - 150 - 161 = 1614
       expect(result).toBe(1614);
     });
 
-    test('Harris-Benedict formula should calculate correctly for male', () => {
+    test('should calculate BMR correctly when using Harris-Benedict formula for male', () => {
       const strategy = new HarrisBenedictBMRStrategy();
       const result = strategy.calculate(profile);
       // 88.362 + (13.397 * 80) + (4.799 * 180) - (5.677 * 30)
@@ -62,7 +62,7 @@ describe('Calculators Unit Tests', () => {
   });
 
   describe('NutritionCalculator TDEE', () => {
-    test('calculateTDEE should apply correct multipliers', () => {
+    test('should apply correct activity multipliers when calculating TDEE', () => {
       const calculator = new NutritionCalculator();
       const bmr = 2000;
       

@@ -17,7 +17,7 @@ router.get('/bmi', authMiddleware, async (req, res) => {
     }
 
     const result = nutritionService.calculateBMI(user.weight, user.heightCm);
-    res.json(result);
+    res.json({ ...result, weight: user.weight, heightCm: user.heightCm });
   } catch (_error) {
     res.status(500).json({ error: 'Internal server error' });
   }

@@ -16,7 +16,7 @@ describe('Workouts & Profile Integration Tests', () => {
     // Seed exercises
     await seedExercises();
     const { Exercise } = require('../../src/models');
-    const ex = await Exercise.findOne({ where: { name: 'Bench Press' } });
+    const ex = await Exercise.findOne({ where: { name: 'Développé couché barre' } });
     exerciseId = ex.id;
 
     // Create user and get token
@@ -29,7 +29,7 @@ describe('Workouts & Profile Integration Tests', () => {
   });
 
   describe('Profile', () => {
-    test('PUT /api/profile should update user data', async () => {
+    test('should update user data when sending valid profile via PUT /api/profile', async () => {
       const profileData = {
         weight: 85,
         heightCm: 185,
@@ -48,7 +48,7 @@ describe('Workouts & Profile Integration Tests', () => {
       expect(res.body.activityLevel).toBe('active');
     });
 
-    test('GET /api/profile should return current data', async () => {
+    test('should return current profile data when calling GET /api/profile', async () => {
       const res = await request(app)
         .get('/api/profile')
         .set('Authorization', `Bearer ${token}`);
@@ -61,7 +61,7 @@ describe('Workouts & Profile Integration Tests', () => {
   describe('Workouts', () => {
     let workoutId;
 
-    test('POST /api/workouts should create a session with sets', async () => {
+    test('should create a session with sets when posting valid workout data', async () => {
       const workoutData = {
         name: 'My First Session',
         type: 'strength',
@@ -88,7 +88,7 @@ describe('Workouts & Profile Integration Tests', () => {
       workoutId = res.body.id;
     });
 
-    test('POST /api/workouts/:id/complete should finish the session', async () => {
+    test('should finish the session when calling POST /api/workouts/:id/complete', async () => {
       const res = await request(app)
         .post(`/api/workouts/${workoutId}/complete`)
         .set('Authorization', `Bearer ${token}`);
@@ -97,10 +97,25 @@ describe('Workouts & Profile Integration Tests', () => {
       expect(res.body.status).toBe('completed');
       expect(res.body.completedAt).not.toBeNull();
     });
+
+    test('should return 404 when getting non-existent workout', async () => {
+      const res = await request(app)
+        .get('/api/workouts/99999')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('should return 400 when creating workout without required fields', async () => {
+      const res = await request(app)
+        .post('/api/workouts')
+        .set('Authorization', `Bearer ${token}`)
+        .send({});
+      expect(res.statusCode).toBe(400);
+    });
   });
 
   describe('Nutrition / TDEE', () => {
-    test('GET /api/nutrition/tdee should calculate values', async () => {
+    test('should calculate TDEE values when calling GET /api/nutrition/tdee', async () => {
       const res = await request(app)
         .get('/api/nutrition/tdee')
         .set('Authorization', `Bearer ${token}`);

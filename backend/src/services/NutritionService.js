@@ -45,7 +45,7 @@ class NutritionService {
   }
 
   /**
-   * Calcul du TDEE à partir du profil utilisateur
+   * Calcul du TDEE à partir du profil utilisateur avec ventilation détaillée
    */
   async calculateTDEE(userId) {
     const user = await this.userRepository.findById(userId);
@@ -64,15 +64,46 @@ class NutritionService {
       user.gender
     );
 
-    const tdee = this.nutritionCalculator.calculateTDEE(
-      bmr,
-      user.activityLevel || 'moderate'
-    );
+    const activityLevel = user.activityLevel || 'moderate';
+    const tdee = this.nutritionCalculator.calculateTDEE(bmr, activityLevel);
+
+    // Ventilation détaillée
+    const neat = Math.round(tdee * 0.25);
+    const exerciseCalories = Math.round(tdee * 0.10);
+    const tef = Math.round(tdee * 0.05);
+    const bmrPct = Math.round((bmr / tdee) * 100);
+    const neatPct = Math.round((neat / tdee) * 100);
+    const exercisePct = Math.round((exerciseCalories / tdee) * 100);
+    const tefPct = Math.round((tef / tdee) * 100);
+
+    // Objectif calorique basé sur le goal de l'utilisateur
+    const goal = user.goal || 'maintenance';
+    let targetMin, targetMax, goalLabel;
+    if (goal === 'weight_loss') {
+      targetMin = Math.round(tdee - 500);
+      targetMax = Math.round(tdee - 300);
+      goalLabel = 'perdre du poids';
+    } else if (goal === 'muscle_gain') {
+      targetMin = Math.round(tdee + 100);
+      targetMax = Math.round(tdee + 300);
+      goalLabel = 'prendre du muscle';
+    } else {
+      targetMin = Math.round(tdee - 100);
+      targetMax = Math.round(tdee + 100);
+      goalLabel = 'maintenir ton poids';
+    }
 
     return {
-      bmr,
-      tdee,
-      activityLevel: user.activityLevel || 'moderate',
+      bmr: Math.round(bmr),
+      tdee: Math.round(tdee),
+      activityLevel,
+      breakdown: [
+        { label: 'Métabolisme de base (BMR)', sublabel: 'Ce que ton corps brûle juste pour vivre.', value: Math.round(bmr), pct: bmrPct, color: '#3B82F6' },
+        { label: 'Activité non sportive', sublabel: 'Tes déplacements, ta posture, ta journée.', value: neat, pct: neatPct, color: '#22C55E' },
+        { label: 'Entraînement', sublabel: 'Tes séances en moyenne.', value: exerciseCalories, pct: exercisePct, color: '#F97316' },
+        { label: 'Effet thermique des aliments', sublabel: 'Énergie que ton corps dépense pour digérer.', value: tef, pct: tefPct, color: '#A78BFA' },
+      ],
+      target: { min: targetMin, max: targetMax, goalLabel },
       profile: {
         weight: user.weight,
         heightCm: user.heightCm,

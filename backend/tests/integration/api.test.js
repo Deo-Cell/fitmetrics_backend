@@ -12,7 +12,7 @@ describe('API Integration Tests', () => {
   });
 
   describe('Health Check', () => {
-    test('GET /health should return 200 and healthy status', async () => {
+    test('should return 200 with healthy status when calling GET /health', async () => {
       const res = await request(app).get('/health');
       expect(res.statusCode).toBe(200);
       expect(res.body.status).toBe('healthy');
@@ -26,7 +26,7 @@ describe('API Integration Tests', () => {
       password: 'password123'
     };
 
-    test('POST /api/auth/register should create a new user', async () => {
+    test('should create a new user when registering with valid data', async () => {
       const res = await request(app)
         .post('/api/auth/register')
         .send(userData);
@@ -37,7 +37,7 @@ describe('API Integration Tests', () => {
       expect(res.body).toHaveProperty('token');
     });
 
-    test('POST /api/auth/register should fail for existing email', async () => {
+    test('should return 409 when registering with duplicate email', async () => {
       const res = await request(app)
         .post('/api/auth/register')
         .send(userData);
@@ -46,7 +46,14 @@ describe('API Integration Tests', () => {
       expect(res.body.error).toBe('Email already registered');
     });
 
-    test('POST /api/auth/login should return token for valid credentials', async () => {
+    test('should return 400 when registering without email', async () => {
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({ password: 'Test1234!' });
+      expect(res.statusCode).toBe(400);
+    });
+
+    test('should return token when logging in with valid credentials', async () => {
       const res = await request(app)
         .post('/api/auth/login')
         .send(userData);
@@ -55,7 +62,7 @@ describe('API Integration Tests', () => {
       expect(res.body).toHaveProperty('token');
     });
 
-    test('POST /api/auth/login should fail for invalid password', async () => {
+    test('should return 401 when logging in with invalid password', async () => {
       const res = await request(app)
         .post('/api/auth/login')
         .send({ email: userData.email, password: 'wrongpassword' });
