@@ -39,7 +39,7 @@ class WorkoutExerciseRepository extends BaseRepository {
     const { Workout } = require('../models');
     
     return this.findAll({
-      attributes: ['exerciseId', 'weight', 'reps'],
+      attributes: ['exerciseId', 'weight', 'reps', 'createdAt'],
       include: [
         {
           model: Exercise,

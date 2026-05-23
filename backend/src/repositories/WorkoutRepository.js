@@ -17,7 +17,11 @@ class WorkoutRepository extends BaseRepository {
     if (from || to) {
       where.createdAt = {};
       if (from) where.createdAt[Op.gte] = new Date(from);
-      if (to) where.createdAt[Op.lte] = new Date(to);
+      if (to) {
+        const toDate = new Date(to);
+        toDate.setHours(23, 59, 59, 999);
+        where.createdAt[Op.lte] = toDate;
+      }
     }
 
     return this.findAll({
@@ -53,7 +57,11 @@ class WorkoutRepository extends BaseRepository {
     if (from || to) {
       where.completedAt = {};
       if (from) where.completedAt[Op.gte] = new Date(from);
-      if (to) where.completedAt[Op.lte] = new Date(to);
+      if (to) {
+        const toDate = new Date(to);
+        toDate.setHours(23, 59, 59, 999);
+        where.completedAt[Op.lte] = toDate;
+      }
     }
 
     return this.findAll({
